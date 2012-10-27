@@ -86,3 +86,57 @@ this._salesforceService.CreateObject("Task", new Dictionary<string, IConvertible
 ```
 
 Same with update and delete ...
+
+OAuth
+-----
+
+Send OAuth request for getting code
+
+```CSharp 
+string OAauthUrl = String.Format
+	(
+		"{0}?response_type=code&client_id={1}&redirect_uri={2}",
+		this._configurationHelper.OAuthAuthorizeUrl,
+		this._configurationHelper.ConsumerKey,
+		this._configurationHelper.OAuthRedirectUrl
+	);
+
+return (new RedirectResult(OAauthUrl));
+```
+
+After getting code you have to get and fill:
+
+1. TokenResponse (https://login.salesforce.com/services/oauth2/token)
+2. UserInfoResponse (https://login.salesforce.com/id/)
+
+After that you can use login function on this maner:
+
+```CSharp
+TokenResponse token = this.RequestToken(code);
+
+try
+{
+	TokenResponse token = this.RequestToken(code);
+
+	if (token != null)
+	{
+		// Request user info by token
+
+		UserInfoResponse userInfoResponse = this.RequestUserInfo(token);
+
+		if (userInfoResponse != null)
+		{
+			// Try to login to Salesfeorce
+
+			if (this._salesforceService.Login(token, userInfoResponse))
+			{
+				this._isAuthorized = true;
+			}
+		}
+	}
+}
+catch (Exception ex)
+{
+	// Log exception
+}
+```
