@@ -5,6 +5,8 @@ Salesforce .NET SOAP wrapper.
 
 For first you have to define your Salesforce entity derived from SalesforceEntity, for ex:
 
+```CSharp
+
 public class Task : SalesforceEntity
 {
 	#region Public Properties
@@ -46,20 +48,26 @@ public class Task : SalesforceEntity
 	#endregion Public Properties
 }
 
+```
+
 After that you can get, create, update and delete tasks, for ex:
 
 Getting
+-------
 
-1. List<Task> tasks = this._salesforceService.GetObjects<Task>(whereClause);
-2. List<Task> tasks = this._salesforceService.GetObjects<Task>(new Liist<string>() { "Id", "Subject" }, whereClause);
+1. ```CSharp List<Task> tasks = this._salesforceService.GetObjects<Task>(whereClause); ```
+2. ```CSharp List<Task> tasks = this._salesforceService.GetObjects<Task>(new Liist<string>() { "Id", "Subject" }, whereClause); ```
 
 or you can use sObject ("entityless") call:
 
-3. List<sObject> tasks = this._salesforceService.GetObjects("Task", new Liist<string>() { "Id", "Subject" }, whereClause);
+3. ```CSharp List<sObject> tasks = this._salesforceService.GetObjects("Task", new Liist<string>() { "Id", "Subject" }, whereClause); ```
 
 Creating
+--------
 
 1.
+
+```CSharp
 
 var task = new Task()
 {
@@ -68,10 +76,12 @@ var task = new Task()
 
 this._salesforceService.CreateObject(task);
 
-2. this._salesforceService.CreateObject<Task>(new Dictionary<string, IConvertible>() {{ "Subject", "Hello!" }} );
+```
+
+2. ```CSharp this._salesforceService.CreateObject<Task>(new Dictionary<string, IConvertible>() {{ "Subject", "Hello!" }} ); ```
 
 or you can use sObject ("entityless") call:
 
-3. this._salesforceService.CreateObject("Task", new Dictionary<string, IConvertible>() {{ "Subject", "Hello!" }} );
+3. ```CSharp this._salesforceService.CreateObject("Task", new Dictionary<string, IConvertible>() {{ "Subject", "Hello!" }} ); ```
 
 Same with update and delete ...
