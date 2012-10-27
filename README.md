@@ -11,17 +11,15 @@ public class Task : SalesforceEntity
 	#region Public Properties
 	
 	public string Subject { get; set; }
+	public string Description { get; set; }
 
 	[IgnoreForCreateUpdate]
 	public DateTime? CreatedDate { get; set; }
 
 	public DateTime? ActivityDate { get; set; }
 
-	public string Status { get; set; }
-	
+	public string Status { get; set; }	
 	public string Priority { get; set; }
-
-	public string Description { get; set; }
 
 	public string OwnerId { get; set; }
 
