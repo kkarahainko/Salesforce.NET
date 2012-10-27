@@ -57,13 +57,13 @@ Getting
 List<Task> tasks = this._salesforceService.GetObjects<Task>(whereClause); 
 ```
 ```CSharp 
-List<Task> tasks = this._salesforceService.GetObjects<Task>(new Liist<string>() { "Id", "Subject" }, whereClause); 
+List<Task> tasks = this._salesforceService.GetObjects<Task>(new List<string>() { "Id", "Subject" }, whereClause); 
 ```
 
 or you can use sObject ("entityless") call:
 
 ```CSharp 
-List<sObject> tasks = this._salesforceService.GetObjects("Task", new Liist<string>() { "Id", "Subject" }, whereClause); 
+List<sObject> tasks = this._salesforceService.GetObjects("Task", new List<string>() { "Id", "Subject" }, whereClause); 
 ```
 
 Creating
