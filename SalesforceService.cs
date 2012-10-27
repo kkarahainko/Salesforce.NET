@@ -798,23 +798,14 @@
             {
                 // Define query string
 
-                string queryString = String.Format
-                    (
-                        "select COUNT() from {0}",
-                        objectTypeName
-                    );
+                string queryString = String.Format("select COUNT() from {0}", objectTypeName);
 
                 // If where clause is not null or empty
                 // when add it to query string
 
                 if (!String.IsNullOrEmpty(whereClause))
                 {
-                    queryString = String.Format
-                        (
-                            "{0} {1}",
-                            queryString,
-                            whereClause
-                        );
+                    queryString = String.Format("{0} {1}", queryString, whereClause);
                 }
 
                 // Try to request data
