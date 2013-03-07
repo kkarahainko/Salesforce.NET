@@ -3,9 +3,10 @@
     using System;
     using System.Collections.Generic;
 
-    using Entities;
-    using OpenAuthorization;
-    using SalesforcePartnerAPI;
+    using SalesforceNET.Constants;
+    using SalesforceNET.Entities;
+    using SalesforceNET.OpenAuthorization;
+    using SalesforceNET.SalesforcePartnerAPI;
 
     /// <summary>
     /// Salesforce service interface.
@@ -87,8 +88,9 @@
         /// Gets fields list of specified object.
         /// </summary>
         /// <param name="objectTypeName">Object type name.</param>
+        /// <param name="attribute">Field attribute flags.</param>
         /// <returns>List of fields.</returns>
-        List<FieldDescriptor> GetFields(string objectTypeName);
+        List<FieldDescriptor> GetFields(string objectTypeName, FieldAttribute attribute = FieldAttribute.DontCare);
 
         /// <summary>
         /// Gets object type by object ID.
@@ -100,26 +102,42 @@
         /// <summary>
         /// Gets Salesforce objects.
         /// </summary>
+        /// <param name="queryString">Query string.</param>
+        /// <returns>List of Salesforce objects.</returns>
+        List<sObject> GetObjects(string queryString);
+
+        /// <summary>
+        /// Gets Salesforce objects.
+        /// </summary>
         /// <param name="objectTypeName">Object type name.</param>
         /// <param name="fieldNames">Fields for selection.</param>
         /// <param name="whereClause">Where clause.</param>
+        /// <param name="orderByClause">Order by clause.</param>
         /// <returns>List of sObject.</returns>
-        List<sObject> GetObjects(string objectTypeName, List<string> fieldNames, string whereClause = null);
+        List<sObject> GetObjects(string objectTypeName, List<string> fieldNames, string whereClause = null, string orderByClause = null);
+
+        /// <summary>
+        /// Gets Salesforce objects.
+        /// </summary>
+        /// <param name="queryString">Query string.</param>
+        /// <returns>List of Salesforce objects.</returns>
+        List<T> GetObjects<T>(string queryString);
 
         /// <summary>
         /// Gets Salesforce objects.
         /// </summary>
         /// <param name="fieldNames">Fields for selection.</param>
         /// <param name="whereClause">Where clause.</param>
+        /// <param name="orderByClause">Order by clause.</param>
         /// <returns>List of entities.</returns>
-        List<T> GetObjects<T>(List<string> fieldNames, string whereClause = null) where T : SalesforceEntity;
+        List<T> GetObjects<T>(List<string> fieldNames, string whereClause = null, string orderByClause = null) where T : SalesforceEntityBase;
 
         /// <summary>
         /// Gets Salesforce objects.
         /// </summary>
         /// <param name="whereClause">Where clause.</param>
         /// <returns>List of entities.</returns>
-        List<T> GetObjects<T>(string whereClause = null) where T : SalesforceEntity;
+        List<T> GetObjects<T>(string whereClause = null, string orderByClause = null) where T : SalesforceEntityBase;
 
         /// <summary>
         /// Creates Salesforce object.
@@ -134,14 +152,14 @@
         /// </summary>
         /// <param name="values">Object values.</param>
         /// <returns>Operation result.</returns>
-        bool CreateObject<T>(Dictionary<string, IConvertible> values) where T : SalesforceEntity;
+        bool CreateObject<T>(Dictionary<string, IConvertible> values) where T : SalesforceEntityBase;
 
         /// <summary>
         /// Creates sObject on Salesforce.
         /// </summary>
         /// <param name="entity">Entity.</param>
         /// <returns>Operation result.</returns>
-        bool CreateObject(SalesforceEntity entity);
+        bool CreateObject(SalesforceEntityBase entity);
 
         /// <summary>
         /// Updates Salesforce object.
@@ -156,14 +174,14 @@
         /// </summary>
         /// <param name="values">Object values.</param>
         /// <returns>Operation result.</returns>
-        bool UpdateObject<T>(Dictionary<string, IConvertible> values) where T : SalesforceEntity;
+        bool UpdateObject<T>(Dictionary<string, IConvertible> values) where T : SalesforceEntityBase;
 
         /// <summary>
         /// Updates Salesforce object.
         /// </summary>
         /// <param name="entity">Entity.</param>
         /// <returns>Operation result.</returns>
-        bool UpdateObject(SalesforceEntity entity);
+        bool UpdateObject(SalesforceEntityBase entity);
 
         /// <summary>
         /// Deletes Salesforce object by ID.
@@ -187,7 +205,7 @@
         /// <typeparam name="T"></typeparam>
         /// <param name="whereClause">Where clause.</param>
         /// <returns>Count of records with where clause if it set otherwise all record.</returns>
-        int CountRecords<T>(string whereClause = null) where T : SalesforceEntity;
+        int CountRecords<T>(string whereClause = null) where T : SalesforceEntityBase;
 
         #endregion Methods
     }

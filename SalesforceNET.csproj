@@ -49,7 +49,12 @@
     <Compile Include="Attributes\IgnoreForCreateUpdateAttribute.cs" />
     <Compile Include="Attributes\IgnoreForGetAttribute.cs" />
     <Compile Include="Attributes\IgnoreForUpdateAttribute.cs" />
-    <Compile Include="Entities\SalesforceEntity.cs" />
+    <Compile Include="Constants\Enums.cs" />
+    <Compile Include="Constants\Errors.cs" />
+    <Compile Include="Entities\FieldDescriptor.cs" />
+    <Compile Include="Entities\UserInfo.cs" />
+    <Compile Include="Helpers\Constructor.cs" />
+    <Compile Include="Helpers\Extractor.cs" />
     <Compile Include="ISalesforceService.cs" />
     <Compile Include="OpenAuthorization\TokenResponse.cs" />
     <Compile Include="OpenAuthorization\UserInfoResponse.cs" />
@@ -65,9 +70,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.map</DependentUpon>
     </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
     <WebReferences Include="Web References\" />
@@ -180,6 +182,7 @@
       <DependentUpon>Reference.map</DependentUpon>
     </None>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
