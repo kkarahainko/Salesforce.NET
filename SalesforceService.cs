@@ -69,7 +69,7 @@
         /// </summary>
         public bool IsLogged
         {
-            get { return this._loggedIn; }
+            get { return _loggedIn; }
         }
 
         /// <summary>
@@ -77,7 +77,7 @@
         /// </summary>
         public UserInfo UserInfo
         {
-            get { return this._userInfo; }
+            get { return _userInfo; }
         }
 
         #endregion Public Properties
@@ -91,13 +91,16 @@
         /// <returns>True if connected otherwise false.</returns>
         private bool CheckConnected(bool throwIfNotConnected = true)
         {
-            if (!this._loggedIn)
+            if (!_loggedIn)
             {
                 if (throwIfNotConnected)
                 {
                     throw (new InvalidOperationException(Errors.ERR_BINDING_IS_NOT_LOGGED_IN));
                 }
-                else { return false; }
+                else 
+                { 
+                    return false; 
+                }
             }
 
             return true;
@@ -119,45 +122,33 @@
         /// <returns>Login result.</returns>
         public bool Login(string username, string password, string token, out UserInfo userInfo)
         {
-            if (!this._loggedIn)
+            if (!_loggedIn)
             {
-                // Try to get login result
+                LoginResult loginResult = _binding.login(username, String.Concat(password, token));
 
-                LoginResult loginResult = this._binding.login(username, String.Concat(password, token));
-
-                // Set connection data
-
-                this._binding.Url = loginResult.serverUrl;
-                this._binding.SessionHeaderValue = new SessionHeader()
+                _binding.Url = loginResult.serverUrl;
+                _binding.SessionHeaderValue = new SessionHeader
                 {
                     sessionId = loginResult.sessionId
                 };
 
-                // Describe Salesforce globals
+                _salesforceGlobals = _binding.describeGlobal();
 
-                this._salesforceGlobals = this._binding.describeGlobal();
-
-                // Fill user info
-
-                this._userInfo = new UserInfo()
+                _userInfo = new UserInfo
                 {
-                    UserSFID = loginResult.userId,
+                    UserSFID         = loginResult.userId,
                     OrganizationSFID = loginResult.userInfo.organizationId,
                     OrganizationName = loginResult.userInfo.organizationName
                 };
 
-                userInfo = this._userInfo;
-
-                // Set logged in flag
-
-                this._loggedIn = true;
+                userInfo = _userInfo; _loggedIn = true;
             }
             else
             {
                 userInfo = null;
             }
 
-            return this._loggedIn;
+            return _loggedIn;
         }
 
         /// <summary>
@@ -169,39 +160,29 @@
         /// <returns>Login result.</returns>
         public bool Login(string username, string password, string token)
         {
-            if (!this._loggedIn)
+            if (!_loggedIn)
             {
-                // Try to get login result
+                LoginResult loginResult = _binding.login(username, String.Concat(password, token));
 
-                LoginResult loginResult = this._binding.login(username, String.Concat(password, token));
-
-                // Set connection data
-
-                this._binding.Url = loginResult.serverUrl;
-                this._binding.SessionHeaderValue = new SessionHeader()
+                _binding.Url = loginResult.serverUrl;
+                _binding.SessionHeaderValue = new SessionHeader
                 {
                     sessionId = loginResult.sessionId
                 };
 
-                // Describe Salesforce globals
+                _salesforceGlobals = _binding.describeGlobal();
 
-                this._salesforceGlobals = this._binding.describeGlobal();
-
-                // Fill user info
-
-                this._userInfo = new UserInfo()
+                _userInfo = new UserInfo
                 {
-                    UserSFID = loginResult.userId,
+                    UserSFID         = loginResult.userId,
                     OrganizationSFID = loginResult.userInfo.organizationId,
                     OrganizationName = loginResult.userInfo.organizationName
                 };
 
-                // Set logged in flag
-
-                this._loggedIn = true;
+                _loggedIn = true;
             }
 
-            return this._loggedIn;
+            return _loggedIn;
         }
 
         /// <summary>
@@ -213,50 +194,38 @@
         /// <returns>Login result.</returns>
         public bool Login(TokenResponse token, UserInfoResponse userInfoResponse, out UserInfo userInfo)
         {
-            if (!this._loggedIn)
+            if (!_loggedIn)
             {
-                // Set connection data
-
                 if (userInfoResponse.urls.ContainsKey("partner"))
                 {
-                    this._binding.Url = userInfoResponse.urls["partner"].Replace("{version}", "26.0");
-                    this._binding.SessionHeaderValue = new SessionHeader()
+                    _binding.Url = userInfoResponse.urls["partner"].Replace("{version}", "26.0");
+                    _binding.SessionHeaderValue = new SessionHeader
                     {
                         sessionId = token.access_token
                     };
                 }
-                else
+                else // throw if worng OAuth URL format (no partner URL)
                 {
-                    throw (new InvalidOperationException());
+                    throw (new InvalidOperationException(Errors.ERR_WRONG_OAUTH_URL_FORMAT));
                 }
+                
+                _salesforceGlobals = _binding.describeGlobal(); var info = GetUserInfo();
 
-                // Describe Salesforce globals
-
-                this._salesforceGlobals = this._binding.describeGlobal();
-
-                // Get user info from Salesforce
-
-                var info = this.GetUserInfo();
-
-                this._userInfo = new UserInfo()
+                _userInfo = new UserInfo
                 {
-                    UserSFID = userInfoResponse.user_id,
+                    UserSFID         = userInfoResponse.user_id,
                     OrganizationSFID = userInfoResponse.organization_id,
                     OrganizationName = info.organizationName
                 };
 
-                userInfo = this._userInfo;
-
-                // Set logged in flag
-
-                this._loggedIn = true;
+                userInfo = _userInfo; _loggedIn = true;
             }
             else
             {
                 userInfo = null;
             }
 
-            return this._loggedIn;
+            return _loggedIn;
         }
 
         /// <summary>
@@ -267,44 +236,34 @@
         /// <returns>Login result.</returns>
         public bool Login(TokenResponse token, UserInfoResponse userInfoResponse)
         {
-            if (!this._loggedIn)
+            if (!_loggedIn)
             {
-                // Set connection data
-
                 if (userInfoResponse.urls.ContainsKey("partner"))
                 {
-                    this._binding.Url = userInfoResponse.urls["partner"].Replace("{version}", "25.0");
-                    this._binding.SessionHeaderValue = new SessionHeader()
+                    _binding.Url = userInfoResponse.urls["partner"].Replace("{version}", "25.0");
+                    _binding.SessionHeaderValue = new SessionHeader
                     {
                         sessionId = token.access_token
                     };
                 }
-                else
+                else // throw if worng OAuth URL format (no partner URL)
                 {
-                    throw (new InvalidOperationException());
+                    throw (new InvalidOperationException(Errors.ERR_WRONG_OAUTH_URL_FORMAT));
                 }
 
-                // Describe Salesforce globals
+                _salesforceGlobals = _binding.describeGlobal(); var info = GetUserInfo();
 
-                this._salesforceGlobals = this._binding.describeGlobal();
-
-                // Get user info from Salesforce
-
-                var info = this.GetUserInfo();
-
-                this._userInfo = new UserInfo()
+                _userInfo = new UserInfo
                 {
-                    UserSFID = userInfoResponse.user_id,
+                    UserSFID         = userInfoResponse.user_id,
                     OrganizationSFID = userInfoResponse.organization_id,
                     OrganizationName = info.organizationName
                 };
 
-                // Set logged in flag
-
-                this._loggedIn = true;
+                _loggedIn = true;
             }
 
-            return this._loggedIn;
+            return _loggedIn;
         }
 
         /// <summary>
@@ -312,7 +271,7 @@
         /// </summary>
         public void Logout()
         {
-            this._loggedIn = false;
+            _loggedIn = false;
         }
 
         #endregion Authorization
@@ -327,9 +286,9 @@
         {
             GetUserInfoResult result = null;
 
-            if (this.CheckConnected())
+            if (CheckConnected())
             {
-                result = this._binding.getUserInfo();
+                result = _binding.getUserInfo();
             }
 
             return result;
@@ -345,18 +304,14 @@
         {
             var result = new List<FieldDescriptor>();
 
-            if (this.CheckConnected())
+            if (CheckConnected())
             {
                 if (String.IsNullOrEmpty(objectTypeName))
                 {
                     throw (new ArgumentNullException("objectTypeName"));
                 }
 
-                // Get fields of specified object type
-
-                DescribeSObjectResult describeResult = this._binding.describeSObject(objectTypeName);
-
-                // Get field descriptors
+                DescribeSObjectResult describeResult = _binding.describeSObject(objectTypeName);
 
                 if (describeResult != null)
                 {
@@ -401,21 +356,9 @@
                 throw (new ArgumentNullException("objectId"));
             }
 
-            // Get key prefix
+            var objectDescriptor = _salesforceGlobals.sobjects.Where(x => (x.keyPrefix == objectId.Substring(0, 3))).FirstOrDefault();
 
-            var keyPrefix = objectId.Substring(0, 3);
-
-            // Get object descriptor by prefix
-
-            var objectDescriptor = this._salesforceGlobals.sobjects
-                .Where(x => (x.keyPrefix == keyPrefix))
-                .FirstOrDefault();
-
-            // Return object type name
-
-            return (objectDescriptor != null)
-                ? objectDescriptor.name
-                : null;
+            return (objectDescriptor != null) ? objectDescriptor.name : null;
         }
 
         /// <summary>
@@ -427,22 +370,16 @@
         /// <returns>Count of records with where clause if it set otherwise all record.</returns>
         public int CountRecords(string objectTypeName, string whereClause = null)
         {
-            if (this.CheckConnected())
+            if (CheckConnected())
             {
                 string queryString = String.Format("select COUNT() from {0}", objectTypeName);
-
-                // If where clause is not null or empty when add it to query string
 
                 if (!String.IsNullOrEmpty(whereClause))
                 {
                     queryString = String.Format("{0} {1}", queryString, whereClause);
                 }
 
-                // Try to request data
-
-                QueryResult qr = this._binding.query(queryString);
-
-                return qr.size;
+                return _binding.query(queryString).size;
             }
 
             return 0;
@@ -456,29 +393,18 @@
         /// <returns>Count of records with where clause if it set otherwise all record.</returns>
         public int CountRecords<T>(string whereClause = null) where T : SalesforceEntityBase
         {
-            if (this.CheckConnected())
+            if (CheckConnected())
             {
-                // Get object type name
-
                 string objectTypeName = typeof(T).Name;
 
-                // Build query string
-
                 string queryString = String.Format("select COUNT() from {0}", objectTypeName);
-
-                // If where clause is not null or empty 
-                // when add it to query string
 
                 if (!String.IsNullOrEmpty(whereClause))
                 {
                     queryString = String.Format("{0} where {1}", queryString, whereClause);
                 }
 
-                // Try to request data
-
-                QueryResult qr = this._binding.query(queryString);
-
-                return qr.size;
+                return _binding.query(queryString).size;
             }
 
             return 0;
@@ -497,9 +423,9 @@
         {
             var result = new List<sObject>();
 
-            if (this.CheckConnected())
+            if (CheckConnected())
             {
-                QueryResult qr = this._binding.queryAll(queryString);
+                QueryResult qr = _binding.queryAll(queryString);
 
                 while (qr.size > 0)
                 {
@@ -507,7 +433,7 @@
 
                     if (!qr.done)
                     {
-                        qr = this._binding.queryMore(qr.queryLocator);
+                        qr = _binding.queryMore(qr.queryLocator);
                     }
                 }
             }
@@ -527,7 +453,7 @@
         {
             var result = new List<sObject>();
 
-            if (this.CheckConnected())
+            if (CheckConnected())
             {
                 if (fieldNames == null)
                 {
@@ -538,22 +464,14 @@
                     throw (new ArgumentNullException("objectTypeName"));
                 }
 
-                // Field names should not be empty
-
                 if (fieldNames.Count > 0)
                 {
-                    // Add ID field to query if it not exists
-
                     if (!fieldNames.Exists(q => q.Equals(ID_FIELD_NAME, StringComparison.InvariantCultureIgnoreCase)))
                     {
                         fieldNames.Insert(0, ID_FIELD_NAME);
                     }
 
-                    // Get query string
-
                     string queryString = String.Format("SELECT {0} FROM {1}", String.Join(", ", fieldNames), objectTypeName);
-
-                    // Append 'where' clause && 'order by' clause
 
                     if (!String.IsNullOrEmpty(whereClause))
                     {
@@ -564,9 +482,7 @@
                         queryString = String.Format("{0} ORDER BY {1}", queryString, orderByClause);
                     }
 
-                    // Try to get query result
-
-                    result = this.GetObjects(queryString);
+                    result = GetObjects(queryString);
                 }
                 else
                 {
@@ -586,9 +502,9 @@
         {
             var result = new List<T>();
 
-            if (this.CheckConnected())
+            if (CheckConnected())
             {
-                QueryResult qr = this._binding.queryAll(queryString);
+                QueryResult qr = _binding.queryAll(queryString);
 
                 while (qr.size > 0)
                 {
@@ -601,7 +517,7 @@
 
                     if (!qr.done)
                     {
-                        qr = this._binding.queryMore(qr.queryLocator);
+                        qr = _binding.queryMore(qr.queryLocator);
                     }
                 }
             }
@@ -620,29 +536,21 @@
         {
             var result = new List<T>();
 
-            if (this.CheckConnected())
+            if (CheckConnected())
             {
                 if (fieldNames == null)
                 {
                     throw (new ArgumentNullException("fieldNames"));
                 }
 
-                // Field names should not be empty
-
                 if (fieldNames.Count > 0)
                 {
-                    // Add ID field to query if it not exists
-
                     if (!fieldNames.Exists(q => q.Equals(ID_FIELD_NAME, StringComparison.InvariantCultureIgnoreCase)))
                     {
                         fieldNames.Insert(0, ID_FIELD_NAME);
                     }
 
-                    // Build query string
-
                     string queryString = String.Format("select {0} from {1}", String.Join(", ", fieldNames), typeof(T).Name);
-
-                    // Append 'where' clause && 'order by' clause
 
                     if (!String.IsNullOrEmpty(whereClause))
                     {
@@ -653,9 +561,7 @@
                         queryString = String.Format("{0} ORDER BY {1}", queryString, orderByClause);
                     }
 
-                    // Try to get query result
-
-                    result = this.GetObjects<T>(queryString);
+                    result = GetObjects<T>(queryString);
                 }
                 else
                 {
@@ -675,9 +581,9 @@
         {
             var result = new List<T>();
 
-            if (this.CheckConnected())
+            if (CheckConnected())
             {
-                result = this.GetObjects<T>(Extractor.ExtractFieldNames(typeof(T)), whereClause, orderByClause);
+                result = GetObjects<T>(Extractor.ExtractFieldNames(typeof(T)), whereClause, orderByClause);
             }
 
             return result;
@@ -697,7 +603,7 @@
         {
             bool result = false;
 
-            if (this.CheckConnected())
+            if (CheckConnected())
             {
                 if (String.IsNullOrEmpty(objectTypeName))
                 {
@@ -708,15 +614,11 @@
                     throw (new ArgumentNullException("values"));
                 }
 
-                // Values should not be empty
-
                 if (values.Count > 0)
                 {
-                    // Construct Salesforce object
-
                     if (!values.ContainsKey(ID_FIELD_NAME))
                     {
-                        SaveResult[] saveResults = this._binding.create
+                        SaveResult[] saveResults = _binding.create
                             (
                                 new sObject[] { Constructor.ConstructSObject(objectTypeName, values) }
                             );
@@ -746,22 +648,18 @@
         {
             bool result = false;
 
-            if (this.CheckConnected())
+            if (CheckConnected())
             {
                 if (values == null)
                 {
                     throw (new ArgumentNullException("values"));
                 }
 
-                // Values should not be empty
-
                 if (values.Count > 0)
                 {
-                    // Construct Salesforce object
-
                     if (!values.ContainsKey(ID_FIELD_NAME))
                     {
-                        SaveResult[] saveResults = this._binding.create
+                        SaveResult[] saveResults = _binding.create
                             (
                                 new sObject[] { Constructor.ConstructSObject(typeof(T).Name, values) }
                             );
@@ -791,29 +689,23 @@
         {
             bool result = false;
 
-            if (this.CheckConnected())
+            if (CheckConnected())
             {
                 if (entity == null)
                 {
                     throw (new ArgumentNullException("entity"));
                 }
 
-                // Extract current entity values
-
                 Dictionary<string, IConvertible> values = Extractor.ExtractFieldValues
                     (
                         entity, new ExtractionOptions() { ExcludeCreateIgnored = true }
                     );
 
-                // Values should not be empty
-
                 if (values.Count > 0)
                 {
-                    // Construct Salesforce object
-
                     if (!values.ContainsKey(ID_FIELD_NAME))
                     {
-                        SaveResult[] saveResults = this._binding.create
+                        SaveResult[] saveResults = _binding.create
                             (
                                 new sObject[] { Constructor.ConstructSObject(entity.GetType().Name, values) }
                             );
@@ -848,7 +740,7 @@
         {
             bool result = false;
 
-            if (this.CheckConnected())
+            if (CheckConnected())
             {
                 if (String.IsNullOrEmpty(objectTypeName))
                 {
@@ -859,15 +751,11 @@
                     throw (new ArgumentNullException("values"));
                 }
 
-                // Values should not be empty
-
                 if (values.Count > 0)
                 {
-                    // Construct Salesforce object
-
                     if (values.ContainsKey(ID_FIELD_NAME))
                     {
-                        SaveResult[] saveResults = this._binding.update
+                        SaveResult[] saveResults = _binding.update
                             (
                                 new sObject[] { Constructor.ConstructSObject(objectTypeName, values) }
                             );
@@ -897,22 +785,18 @@
         {
             bool result = false;
 
-            if (this.CheckConnected())
+            if (CheckConnected())
             {
                 if (values == null)
                 {
                     throw (new ArgumentNullException("values"));
                 }
 
-                // Values should not be empty
-
                 if (values.Count > 0)
                 {
-                    // Construct Salesforce object
-
                     if (values.ContainsKey(ID_FIELD_NAME))
                     {
-                        SaveResult[] saveResults = this._binding.update
+                        SaveResult[] saveResults = _binding.update
                             (
                                 new sObject[] { Constructor.ConstructSObject(typeof(T).Name, values) }
                             );
@@ -942,29 +826,23 @@
         {
             bool result = false;
 
-            if (this.CheckConnected())
+            if (CheckConnected())
             {
                 if (entity == null)
                 {
                     throw (new ArgumentNullException("entity"));
                 }
 
-                // Extract current values of entity
-
                 Dictionary<string, IConvertible> values = Extractor.ExtractFieldValues
                     (
                         entity, new ExtractionOptions() { ExcludeUpdateIgnored = true }
                     );
 
-                // Values should not be empty
-
                 if (values.Count > 0)
                 {
-                    // Construct Salesforce object
-
                     if (values.ContainsKey(ID_FIELD_NAME))
                     {
-                        SaveResult[] saveResults = this._binding.update
+                        SaveResult[] saveResults = _binding.update
                             (
                                 new sObject[] { Constructor.ConstructSObject(entity.GetType().Name, values) }
                             );
@@ -998,15 +876,11 @@
         {
             bool result = false;
 
-            if (this.CheckConnected())
+            if (CheckConnected())
             {
                 if (!String.IsNullOrEmpty(id))
                 {
-                    // Try to delete record
-
-                    DeleteResult[] deleteResults = this._binding.delete(new string[] { id });
-
-                    // Get result
+                    DeleteResult[] deleteResults = _binding.delete(new string[] { id });
 
                     result = ((deleteResults.Length > 0) && (deleteResults[0].success));
                 }
@@ -1030,7 +904,7 @@
         /// </summary>
         public SalesforceService()
         {
-            this._binding = new SforceService { Timeout = 60000 };
+            _binding = new SforceService { Timeout = 60000 };
         }
 
         #endregion Constructors

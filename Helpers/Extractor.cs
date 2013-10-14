@@ -64,11 +64,7 @@
         {
             var result = new List<string>();
 
-            // Get public properties
-
             PropertyInfo[] properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
-
-            // Get properties values
 
             foreach (PropertyInfo property in properties)
             {
@@ -88,8 +84,6 @@
                 }
                 else
                 {
-                    // Resolve result field name
-
                     if (!String.IsNullOrEmpty(typePrefix))
                     {
                         result.Add(String.Format("{0}.{1}", typePrefix, property.Name));
@@ -114,16 +108,10 @@
         {
             var result = new Dictionary<string, IConvertible>();
 
-            // Get public properties
-
             PropertyInfo[] properties = entity.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
-
-            // Get properties values
 
             foreach (PropertyInfo property in properties)
             {
-                // Check for ignored properties
-
                 bool ignoreProperty = false;
 
                 if (options != null)
@@ -151,12 +139,8 @@
                     }
                 }
 
-                // Ignore property if needed
-
                 if (!ignoreProperty)
                 {
-                    // Get property value
-
                     object propertyValue = property.GetValue(entity, null);
 
                     if (propertyValue != null) // if value is not null
@@ -180,14 +164,10 @@
                             }
                         }
 
-                        // Add property name - value to result
-
                         result.Add(property.Name, resultValue);
                     }
                     else
                     {
-                        // Add null value to result
-
                         result.Add(property.Name, null);
                     }
                 }

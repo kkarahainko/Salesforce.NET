@@ -34,8 +34,6 @@
 
             var sObj = new sObject();
 
-            // Values should not be empty
-
             if (values.Count != 0)
             {
                 var doc = new XmlDocument();
@@ -86,25 +84,15 @@
                 throw (new ArgumentNullException("any"));
             }
 
-            // Create instance of specified type
-
             dynamic entity = Activator.CreateInstance(entityType);
-
-            // Convert sObject to entity of specified type
 
             foreach (XmlElement node in any)
             {
-                // Try to get property by sObject fieldname
-
                 PropertyInfo propertyInfo = entity.GetType().GetProperty(node.LocalName);
 
                 if ((propertyInfo != null) && (!node.IsEmpty && node.NodeType == XmlNodeType.Element))
                 {
-                    // Get property type
-
                     Type propertyType = propertyInfo.PropertyType;
-
-                    // Resovle node type (simple value or complex object)
 
                     if (node.HasAttributes) // complex field with type (ex - sf:sObject) attribute
                     {
